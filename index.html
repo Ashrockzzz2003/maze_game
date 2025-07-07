@@ -4,11 +4,11 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Help the Boy Reach Shirdi</title>
-        <script src="https://cdn.tailwindcss.com"></script>
         <link
             href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap"
             rel="stylesheet"
         />
+        <link rel="stylesheet" href="output.css" />
         <style>
             body {
                 font-family: "Nunito", sans-serif;
@@ -27,6 +27,12 @@
                 z-index: 10;
                 cursor: move;
                 touch-action: none;
+                background-color: rgba(
+                    0,
+                    0,
+                    0,
+                    0.2
+                ); /* Replaced Tailwind classes */
             }
             .control-button {
                 transition: transform 0.1s ease-in-out, background-color 0.2s;
@@ -36,6 +42,12 @@
             }
             .hint-box {
                 min-height: 4rem; /* Reserve space for dynamic text */
+            }
+            #win-modal {
+                background-color: rgba(0, 0, 0, 0.5);
+            }
+            #drag-hint-modal {
+                background-color: rgba(0, 0, 0, 0.6);
             }
         </style>
     </head>
@@ -83,10 +95,7 @@
                 class="w-full aspect-square max-w-full sm:max-w-md md:max-w-lg lg:max-w-xl relative"
             >
                 <!-- On-screen Controls for Mobile -->
-                <div
-                    id="controls"
-                    class="controls-container bg-black bg-opacity-20 p-2 rounded-xl"
-                >
+                <div id="controls" class="controls-container p-2 rounded-xl">
                     <div class="grid grid-cols-3 gap-3 w-40 select-none">
                         <div></div>
                         <button
@@ -192,7 +201,7 @@
             <!-- Win Message Modal -->
             <div
                 id="win-modal"
-                class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+                class="hidden fixed inset-0 flex items-center justify-center p-4 z-50"
             >
                 <div
                     class="bg-white rounded-lg shadow-2xl p-8 text-center transform transition-all scale-95"
@@ -218,7 +227,7 @@
             <!-- Drag Hint Modal -->
             <div
                 id="drag-hint-modal"
-                class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50"
+                class="hidden fixed inset-0 flex items-center justify-center p-4 z-50"
             >
                 <div
                     class="bg-white rounded-lg shadow-2xl p-8 text-center transform transition-all scale-95 max-w-sm"
