@@ -10,20 +10,22 @@ The objective is to navigate the boy through the maze from the starting point (t
 
 ### Controls
 
-*   **Desktop:** Use the **Arrow Keys** on your keyboard to move the boy.
-*   **Mobile:** Use the **on-screen directional controls**. These controls can be dragged around the screen to your preferred position.
+-   **Desktop:** Use the **Arrow Keys** on your keyboard to move the boy.
+-   **Mobile:** Use the **on-screen directional controls**. These controls can be dragged around the screen to your preferred position.
 
 ### Features
 
-*   **Three Difficulty Levels:** Easy, Medium, and Complex.
-*   **Hint System:** If you're stuck, you can click the "Get Hint" button to see the correct next move.
-*   **Path Highlighting:** The path the boy takes is highlighted, creating a visual trail of the journey.
-*   **Draggable Controls:** On-screen controls can be moved for better usability on different screen sizes.
+-   **Three Difficulty Levels:** Easy, Medium, and Hard.
+-   **Hint System:** If you're stuck, you can click the "Get Hint" button to see the correct next move.
+-   **Path Highlighting:** The path the boy takes is highlighted, creating a visual trail of the journey.
+-   **Draggable Controls:** On-screen controls can be moved for better usability on different screen sizes.
+-   **Haptic Feedback:** On mobile devices, buttons provide tactile feedback when tapped.
+-   **First-Time Tips:** New players receive a pop-up with instructions on how to play.
 
 ## How to Run
 
 Simply open the `index.html` file in any modern web browser to play the game. No special setup or server is required.
 
-***
+---
 
-**Om Sri Sai Dwaraka Mayi Vasine namaha!!** 
+**Om Sri Sai Dwaraka Mayi Vasine namaha!!**

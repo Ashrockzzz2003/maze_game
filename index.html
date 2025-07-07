@@ -280,6 +280,14 @@
                     hard: 25,
                 };
 
+                // --- Haptic Feedback ---
+                function triggerHapticFeedback() {
+                    if (navigator.vibrate) {
+                        // Vibrate for 50ms, a short tap
+                        navigator.vibrate(50);
+                    }
+                }
+
                 // --- Pathfinding for Hint System ---
                 function solveMaze(start, end) {
                     // BFS implementation to find the shortest path
@@ -590,11 +598,13 @@
 
                 difficultyButtons.forEach((button) => {
                     button.addEventListener("click", () => {
+                        triggerHapticFeedback();
                         startGame(button.dataset.difficulty);
                     });
                 });
 
                 playAgainBtn.addEventListener("click", () => {
+                    triggerHapticFeedback();
                     winModal.classList.add("hidden");
                     winModal.querySelector("div").classList.remove("scale-100");
                     const activeBtn = document.querySelector(
@@ -603,7 +613,10 @@
                     startGame(activeBtn.dataset.difficulty || "easy");
                 });
 
-                getHintBtn.addEventListener("click", getHint);
+                getHintBtn.addEventListener("click", () => {
+                    triggerHapticFeedback();
+                    getHint();
+                });
 
                 document.addEventListener("keydown", (e) => {
                     if (!isGameActive) return;
@@ -633,18 +646,28 @@
                 });
 
                 // --- On-screen Controls & Initial Start ---
-                document
-                    .getElementById("up")
-                    .addEventListener("click", () => movePlayer(0, -1));
+                document.getElementById("up").addEventListener("click", () => {
+                    triggerHapticFeedback();
+                    movePlayer(0, -1);
+                });
                 document
                     .getElementById("down")
-                    .addEventListener("click", () => movePlayer(0, 1));
+                    .addEventListener("click", () => {
+                        triggerHapticFeedback();
+                        movePlayer(0, 1);
+                    });
                 document
                     .getElementById("left")
-                    .addEventListener("click", () => movePlayer(-1, 0));
+                    .addEventListener("click", () => {
+                        triggerHapticFeedback();
+                        movePlayer(-1, 0);
+                    });
                 document
                     .getElementById("right")
-                    .addEventListener("click", () => movePlayer(1, 0));
+                    .addEventListener("click", () => {
+                        triggerHapticFeedback();
+                        movePlayer(1, 0);
+                    });
 
                 // --- Draggable Controls ---
                 const controls = document.getElementById("controls");
@@ -743,6 +766,7 @@
                     }
 
                     dragHintOkBtn.addEventListener("click", () => {
+                        triggerHapticFeedback();
                         localStorage.setItem("hasSeenDragHint", "true");
                         dragHintModal.classList.add("hidden");
                     });
