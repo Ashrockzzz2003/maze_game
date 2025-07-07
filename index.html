@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help the Boy Reach Shirdi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            touch-action: none; /* Prevents scrolling on touch devices */
+        }
+        canvas {
+            background-color: #f0f9ff; /* light sky blue */
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .controls-container {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            cursor: move;
+            touch-action: none;
+        }
+        .control-button {
+            transition: transform 0.1s ease-in-out, background-color 0.2s;
+        }
+        .control-button:active {
+            transform: scale(0.95);
+        }
+        .hint-box {
+            min-height: 4rem; /* Reserve space for dynamic text */
+        }
+    </style>
+</head>
+<body class="bg-blue-50 flex flex-col items-center justify-center min-h-screen p-4">
+
+    <div id="game-container" class="w-full max-w-2xl mx-auto flex flex-col items-center">
+        <h1 class="text-3xl sm:text-4xl font-bold text-blue-800 mb-2">Help the Boy Reach Shirdi</h1>
+        <p class="text-lg text-yellow-700 font-semibold mb-2">Om Sri Sai Dwaraka Mayi Vasine namaha!!</p>
+
+        <!-- Difficulty Selection -->
+        <div id="difficulty-selector" class="flex flex-wrap justify-center gap-3 mb-4">
+            <button data-difficulty="easy" class="difficulty-btn bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-transform transform hover:scale-105">Easy</button>
+            <button data-difficulty="medium" class="difficulty-btn bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-transform transform hover:scale-105">Medium</button>
+            <button data-difficulty="complex" class="difficulty-btn bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded-full shadow-lg transition-transform transform hover:scale-105">Complex</button>
+        </div>
+        
+        <!-- Maze Canvas and Controls -->
+        <div class="w-full aspect-square max-w-full sm:max-w-md md:max-w-lg lg:max-w-xl relative">
+            <!-- On-screen Controls for Mobile -->
+            <div id="controls" class="controls-container bg-black bg-opacity-20 p-2 rounded-xl">
+                <div class="grid grid-cols-3 gap-3 w-40 select-none">
+                    <div></div>
+                    <button id="up" class="control-button bg-blue-500 text-white p-3 rounded-lg shadow-md"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" /></svg></button>
+                    <div></div>
+                    <button id="left" class="control-button bg-blue-500 text-white p-3 rounded-lg shadow-md"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button>
+                    <button id="down" class="control-button bg-blue-500 text-white p-3 rounded-lg shadow-md"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
+                    <button id="right" class="control-button bg-blue-500 text-white p-3 rounded-lg shadow-md"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button>
+                </div>
+            </div>
+            <canvas id="mazeCanvas"></canvas>
+        </div>
+        
+        <!-- Hint Area -->
+        <div class="w-full max-w-md md:max-w-lg lg:max-w-xl mt-4 text-center">
+            <button id="get-hint-btn" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-5 rounded-full shadow-lg transition-transform transform hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                Get Hint
+            </button>
+            <div id="hint-box" class="hint-box mt-3 p-4 bg-white rounded-lg shadow-inner text-gray-700 text-sm flex items-center justify-center">
+                <p id="hint-text">Need help? Ask for a hint!</p>
+            </div>
+        </div>
+
+        <!-- Win Message Modal -->
+        <div id="win-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-lg shadow-2xl p-8 text-center transform transition-all scale-95">
+                <h2 class="text-4xl font-bold text-yellow-500 mb-4">✨ Reached Shirdi! ✨</h2>
+                <p id="win-message" class="text-gray-700 mb-6 min-h-[3rem] flex items-center justify-center">Jai Sairam! You have guided the boy to Baba!</p>
+                <button id="play-again" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-transform transform hover:scale-105">Play Again</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM Elements ---
+            const canvas = document.getElementById('mazeCanvas');
+            const ctx = canvas.getContext('2d');
+            const difficultyButtons = document.querySelectorAll('.difficulty-btn');
+            const winModal = document.getElementById('win-modal');
+            const playAgainBtn = document.getElementById('play-again');
+            const getHintBtn = document.getElementById('get-hint-btn');
+            const hintText = document.getElementById('hint-text');
+            const winMessage = document.getElementById('win-message');
+            
+            // --- Game State ---
+            let maze, player, goal, cellSize, mazeSize, currentDifficulty;
+            let isGameActive = true;
+            
+            const difficultySettings = {
+                easy: 10,
+                medium: 15,
+                complex: 25,
+            };
+
+            // --- Pathfinding for Hint System ---
+            function solveMaze(start, end) {
+                // BFS implementation to find the shortest path
+                const queue = [[start]];
+                const visited = new Set([`${start.x},${start.y}`]);
+
+                while (queue.length > 0) {
+                    const path = queue.shift();
+                    const { x, y } = path[path.length - 1];
+
+                    if (x === end.x && y === end.y) {
+                        return path; // Return the first path found (shortest)
+                    }
+
+                    const currentCell = maze[y][x];
+                    const neighbors = [];
+
+                    // Check neighbors (top, right, bottom, left)
+                    if (!currentCell.walls.top) neighbors.push({ x, y: y - 1 });
+                    if (!currentCell.walls.right) neighbors.push({ x: x + 1, y });
+                    if (!currentCell.walls.bottom) neighbors.push({ x, y: y + 1 });
+                    if (!currentCell.walls.left) neighbors.push({ x: x - 1, y });
+
+                    for (const neighbor of neighbors) {
+                        const { x: nx, y: ny } = neighbor;
+                        if (nx >= 0 && nx < mazeSize && ny >= 0 && ny < mazeSize && !visited.has(`${nx},${ny}`)) {
+                            visited.add(`${nx},${ny}`);
+                            const newPath = [...path, neighbor];
+                            queue.push(newPath);
+                        }
+                    }
+                }
+                return null; // No path found
+            }
+
+            function getHint() {
+                if (!isGameActive) return;
+
+                const path = solveMaze(player, goal);
+                if (path && path.length > 1) {
+                    const nextStep = path[1];
+                    let hint = '';
+                    if (nextStep.y < player.y) hint = 'Try going Up!';
+                    else if (nextStep.y > player.y) hint = 'Try going Down!';
+                    else if (nextStep.x < player.x) hint = 'Try going Left!';
+                    else if (nextStep.x > player.x) hint = 'Try going Right!';
+                    hintText.textContent = hint;
+                } else {
+                    hintText.textContent = "You're on the right path already!";
+                }
+            }
+
+
+            // --- Cell Class and Maze Generation ---
+            class Cell {
+                constructor(x, y) {
+                    this.x = x;
+                    this.y = y;
+                    this.walls = { top: true, right: true, bottom: true, left: true };
+                    this.visited = false;
+                }
+                draw() {
+                    ctx.strokeStyle = '#0284c7';
+                    ctx.lineWidth = 3;
+                    const x = this.x * cellSize;
+                    const y = this.y * cellSize;
+                    if (this.walls.top) { ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + cellSize, y); ctx.stroke(); }
+                    if (this.walls.right) { ctx.beginPath(); ctx.moveTo(x + cellSize, y); ctx.lineTo(x + cellSize, y + cellSize); ctx.stroke(); }
+                    if (this.walls.bottom) { ctx.beginPath(); ctx.moveTo(x + cellSize, y + cellSize); ctx.lineTo(x, y + cellSize); ctx.stroke(); }
+                    if (this.walls.left) { ctx.beginPath(); ctx.moveTo(x, y + cellSize); ctx.lineTo(x, y); ctx.stroke(); }
+                }
+                getNeighbors(grid) {
+                    const neighbors = [];
+                    const { x, y } = this;
+                    const top = grid[y - 1]?.[x], right = grid[y]?.[x + 1], bottom = grid[y + 1]?.[x], left = grid[y]?.[x - 1];
+                    if (top && !top.visited) neighbors.push(top);
+                    if (right && !right.visited) neighbors.push(right);
+                    if (bottom && !bottom.visited) neighbors.push(bottom);
+                    if (left && !left.visited) neighbors.push(left);
+                    return neighbors.length > 0 ? neighbors[Math.floor(Math.random() * neighbors.length)] : undefined;
+                }
+            }
+            function generateMaze(size) {
+                mazeSize = size;
+                const grid = Array.from({ length: size }, (_, y) => Array.from({ length: size }, (_, x) => new Cell(x, y)));
+                const stack = [];
+                let current = grid[0][0];
+                current.visited = true;
+                do {
+                    const next = current.getNeighbors(grid);
+                    if (next) {
+                        stack.push(current);
+                        removeWalls(current, next);
+                        current = next;
+                        current.visited = true;
+                    } else if (stack.length > 0) { current = stack.pop(); }
+                } while (stack.length > 0);
+                return grid;
+            }
+            function removeWalls(a, b) {
+                const dx = a.x - b.x;
+                if (dx === 1) { a.walls.left = false; b.walls.right = false; } else if (dx === -1) { a.walls.right = false; b.walls.left = false; }
+                const dy = a.y - b.y;
+                if (dy === 1) { a.walls.top = false; b.walls.bottom = false; } else if (dy === -1) { a.walls.bottom = false; b.walls.top = false; }
+            }
+
+            // --- Drawing Functions ---
+            function drawMaze() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                maze.forEach(row => row.forEach(cell => cell.draw()));
+                drawPlayer();
+                drawGoal();
+            }
+            function drawPlayer() {
+                const x = player.x * cellSize + cellSize * 0.1;
+                const y = player.y * cellSize + cellSize * 0.1;
+                ctx.drawImage(playerImg, x, y, cellSize * 0.8, cellSize * 0.8);
+            }
+            function drawGoal() {
+                const margin = cellSize / 8;
+                const x = goal.x * cellSize + margin;
+                const y = goal.y * cellSize + margin;
+                ctx.drawImage(goalImg, x, y, cellSize - margin * 2, cellSize - margin * 2);
+            }
+            
+            // --- Game Logic ---
+            function startGame(difficulty) {
+                currentDifficulty = difficulty;
+                isGameActive = true;
+                hintText.textContent = "Need help? Ask for a hint!";
+                
+                const size = difficultySettings[difficulty];
+                maze = generateMaze(size);
+                player = { x: 0, y: 0 };
+                goal = { x: size - 1, y: size - 1 };
+                
+                difficultyButtons.forEach(btn => {
+                   btn.classList.toggle('ring-4', btn.dataset.difficulty === difficulty);
+                   btn.classList.toggle('ring-blue-300', btn.dataset.difficulty === difficulty);
+                });
+
+                resizeCanvas();
+            }
+
+            function movePlayer(dx, dy) {
+                if (!isGameActive) return;
+                const currentCell = maze[player.y][player.x];
+                let canMove = false;
+                if (dy === -1 && !currentCell.walls.top) canMove = true;
+                if (dy === 1 && !currentCell.walls.bottom) canMove = true;
+                if (dx === -1 && !currentCell.walls.left) canMove = true;
+                if (dx === 1 && !currentCell.walls.right) canMove = true;
+                
+                if (canMove) {
+                    player.x += dx;
+                    player.y += dy;
+                    drawMaze();
+                    checkWin();
+                }
+            }
+            
+            function checkWin() {
+                if (player.x === goal.x && player.y === goal.y) {
+                    isGameActive = false;
+                    winModal.classList.remove('hidden');
+                    winModal.querySelector('div').classList.add('scale-100');
+                    winMessage.textContent = `Jai Sairam! You solved the ${currentDifficulty} maze. Baba is pleased!`;
+                }
+            }
+
+            // --- Canvas Resizing ---
+            function resizeCanvas() {
+                const container = canvas.parentElement;
+                if (!container) return;
+                const size = Math.min(container.clientWidth, container.clientHeight);
+                canvas.width = size;
+                canvas.height = size;
+                if(mazeSize) {
+                   cellSize = canvas.width / mazeSize;
+                   drawMaze();
+                }
+            }
+
+            // --- Event Listeners ---
+            window.addEventListener('resize', resizeCanvas);
+            
+            difficultyButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    startGame(button.dataset.difficulty);
+                });
+            });
+
+            playAgainBtn.addEventListener('click', () => {
+                winModal.classList.add('hidden');
+                winModal.querySelector('div').classList.remove('scale-100');
+                const activeBtn = document.querySelector('.difficulty-btn.ring-4');
+                startGame(activeBtn.dataset.difficulty || 'easy');
+            });
+
+            getHintBtn.addEventListener('click', getHint);
+            
+            document.addEventListener('keydown', e => {
+                if (!isGameActive) return;
+                const relevantKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+                if (relevantKeys.includes(e.key)) {
+                    e.preventDefault();
+                    switch (e.key) {
+                        case 'ArrowUp': movePlayer(0, -1); break;
+                        case 'ArrowDown': movePlayer(0, 1); break;
+                        case 'ArrowLeft': movePlayer(-1, 0); break;
+                        case 'ArrowRight': movePlayer(1, 0); break;
+                    }
+                }
+            });
+
+            // --- On-screen Controls & Initial Start ---
+            document.getElementById('up').addEventListener('click', () => movePlayer(0, -1));
+            document.getElementById('down').addEventListener('click', () => movePlayer(0, 1));
+            document.getElementById('left').addEventListener('click', () => movePlayer(-1, 0));
+            document.getElementById('right').addEventListener('click', () => movePlayer(1, 0));
+
+            // --- Draggable Controls ---
+            const controls = document.getElementById('controls');
+            let isDragging = false;
+            let offset = { x: 0, y: 0 };
+
+            controls.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                offset = {
+                    x: controls.offsetLeft - e.clientX,
+                    y: controls.offsetTop - e.clientY,
+                };
+                controls.style.opacity = '0.7';
+            });
+            
+            controls.addEventListener('touchstart', (e) => {
+                isDragging = true;
+                const touch = e.touches[0];
+                offset = {
+                    x: controls.offsetLeft - touch.clientX,
+                    y: controls.offsetTop - touch.clientY,
+                };
+                controls.style.opacity = '0.7';
+            }, { passive: false });
+
+
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+                controls.style.opacity = '1';
+            });
+            
+            document.addEventListener('touchend', () => {
+                isDragging = false;
+                controls.style.opacity = '1';
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                e.preventDefault();
+                controls.style.left = `${e.clientX + offset.x}px`;
+                controls.style.top = `${e.clientY + offset.y}px`;
+            });
+            
+            document.addEventListener('touchmove', (e) => {
+                if (!isDragging) return;
+                e.preventDefault();
+                const touch = e.touches[0];
+                controls.style.left = `${touch.clientX + offset.x}px`;
+                controls.style.top = `${touch.clientY + offset.y}px`;
+            }, { passive: false });
+
+
+            // --- Image Loading ---
+            const playerImg = new Image();
+            playerImg.src = 'boy.png';
+            const goalImg = new Image();
+            goalImg.src = 'baba.png';
+
+            // --- Initial Start ---
+            playerImg.onload = () => {
+                goalImg.onload = () => {
+                    startGame('easy');
+                };
+                goalImg.onerror = () => { // Handle goal image loading error
+                    console.error("Failed to load goal image.");
+                    startGame('easy'); 
+                };
+            };
+            playerImg.onerror = () => { // Handle player image loading error
+                console.error("Failed to load player image.");
+                startGame('easy');
+            };
+        });
+    </script>
+</body>
+</html>
