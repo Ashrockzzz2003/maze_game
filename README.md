@@ -1,5 +1,7 @@
 # Help the Boy Reach Shirdi - A Maze Game
 
+<img width="1199" alt="Screenshot 2025-07-07 at 12 28 34" src="https://github.com/user-attachments/assets/6b8db419-2231-49fc-99a7-591d18cd8f08" />
+
 This is a simple maze game created with a devotional theme: to help a young boy find his way to Shirdi to see Baba. The game is built with HTML, CSS, and vanilla JavaScript, using TailwindCSS for styling.
 
 ## Gameplay
