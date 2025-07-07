@@ -21,6 +21,7 @@ The objective is to navigate the boy through the maze from the starting point (t
 -   **Draggable Controls:** On-screen controls can be moved for better usability on different screen sizes.
 -   **Haptic Feedback:** On mobile devices, buttons provide tactile feedback when tapped.
 -   **First-Time Tips:** New players receive a pop-up with instructions on how to play.
+-   **Wall-Hit Animation:** The maze shakes and provides a haptic buzz when you bump into a wall.
 
 ## How to Run
 

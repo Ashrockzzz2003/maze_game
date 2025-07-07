@@ -49,6 +49,28 @@
             #drag-hint-modal {
                 background-color: rgba(0, 0, 0, 0.6);
             }
+            .shake {
+                animation: shake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+            }
+            @keyframes shake {
+                10%,
+                90% {
+                    transform: translateX(-1px);
+                }
+                20%,
+                80% {
+                    transform: translateX(2px);
+                }
+                30%,
+                50%,
+                70% {
+                    transform: translateX(-4px);
+                }
+                40%,
+                60% {
+                    transform: translateX(4px);
+                }
+            }
         </style>
     </head>
     <body
@@ -285,6 +307,22 @@
                     if (navigator.vibrate) {
                         // Vibrate for 50ms, a short tap
                         navigator.vibrate(50);
+                    }
+                }
+
+                function triggerWallHitAnimation() {
+                    const canvasContainer = canvas.parentElement;
+                    if (
+                        canvasContainer &&
+                        !canvasContainer.classList.contains("shake")
+                    ) {
+                        canvasContainer.classList.add("shake");
+                        if (navigator.vibrate) {
+                            navigator.vibrate(80); // A slightly stronger buzz for a wall hit
+                        }
+                        setTimeout(() => {
+                            canvasContainer.classList.remove("shake");
+                        }, 400); // Corresponds to animation duration
                     }
                 }
 
@@ -563,6 +601,8 @@
 
                         drawMaze();
                         checkWin();
+                    } else {
+                        triggerWallHitAnimation();
                     }
                 }
 
