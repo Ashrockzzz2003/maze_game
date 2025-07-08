@@ -18,6 +18,7 @@ The objective is to navigate the boy through the maze from the starting point (t
 -   **Three Difficulty Levels:** Easy, Medium, and Hard.
 -   **Hint System:** If you're stuck, you can click the "Get Hint" button to see the correct next move.
 -   **Path Highlighting:** The path the boy takes is highlighted, creating a visual trail of the journey.
+-   **Dynamic Player Sprite:** The boy character turns to face the direction of horizontal movement.
 -   **Draggable Controls:** On-screen controls can be moved for better usability on different screen sizes.
 -   **Haptic Feedback:** On mobile devices, buttons provide tactile feedback when tapped.
 -   **First-Time Tips:** New players receive a pop-up with instructions on how to play.

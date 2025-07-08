@@ -295,6 +295,7 @@
                 let maze, player, goal, cellSize, mazeSize, currentDifficulty;
                 let pathHistory = []; // To track the player's path
                 let isGameActive = true;
+                let playerDirection = "left"; // Can be 'left' or 'right'
 
                 const difficultySettings = {
                     easy: 10,
@@ -522,13 +523,25 @@
                 function drawPlayer() {
                     const x = player.x * cellSize + cellSize * 0.1;
                     const y = player.y * cellSize + cellSize * 0.1;
-                    ctx.drawImage(
-                        playerImg,
-                        x,
-                        y,
-                        cellSize * 0.8,
-                        cellSize * 0.8
-                    );
+                    const width = cellSize * 0.8;
+                    const height = cellSize * 0.8;
+
+                    ctx.save();
+                    if (playerDirection === "left") {
+                        // Flip the context horizontally
+                        ctx.scale(-1, 1);
+                        // Draw the image, but adjust the x-coordinate to account for the flip
+                        ctx.drawImage(
+                            playerImg,
+                            -(x + width),
+                            y,
+                            width,
+                            height
+                        );
+                    } else {
+                        ctx.drawImage(playerImg, x, y, width, height);
+                    }
+                    ctx.restore();
                 }
                 function drawGoal() {
                     const margin = cellSize / 8;
@@ -579,6 +592,13 @@
                     if (dx === 1 && !currentCell.walls.right) canMove = true;
 
                     if (canMove) {
+                        // Update player direction based on horizontal movement
+                        if (dx === -1) {
+                            playerDirection = "right";
+                        } else if (dx === 1) {
+                            playerDirection = "left";
+                        }
+
                         player.x += dx;
                         player.y += dy;
 
